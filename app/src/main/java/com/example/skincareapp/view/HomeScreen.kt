@@ -6,6 +6,10 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.Image
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import com.example.skincareapp.R
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -260,28 +264,32 @@ fun HomeScreen() {
 
             Spacer(modifier = Modifier.height(14.dp))
 
+
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-
                 ProductCard(
                     brand = "ARENCIA",
                     name = "Vitamin C Booster",
+                    imageRes = R.drawable.arencia,
                     modifier = Modifier.weight(1f)
                 )
 
                 ProductCard(
                     brand = "UNOVE",
                     name = "Deep Damage Repair",
+                    imageRes = R.drawable.unove,
                     modifier = Modifier.weight(1f)
                 )
 
                 ProductCard(
                     brand = "AESTURA",
                     name = "ATOBARRIER365",
+                    imageRes = R.drawable.aestura,
                     modifier = Modifier.weight(1f)
                 )
             }
+
 
             Spacer(modifier = Modifier.height(24.dp))
         }
@@ -332,59 +340,45 @@ fun ExploreCard(
 fun ProductCard(
     brand: String,
     name: String,
+    imageRes: Int,
     modifier: Modifier = Modifier
 ) {
-
     Card(
-        modifier = modifier.height(165.dp),
+        modifier = modifier.height(175.dp),
+        shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
             containerColor = Color.White
-        ),
-        shape = RoundedCornerShape(16.dp)
+        )
     ) {
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(10.dp),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
-
-            Box(
+            Image(
+                painter = painterResource(id = imageRes),
+                contentDescription = name,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(85.dp)
-                    .background(
-                        Cream,
-                        RoundedCornerShape(12.dp)
-                    ),
-                contentAlignment = Alignment.Center
-            ) {
-
-                Icon(
-                    imageVector = Icons.Default.Spa,
-                    contentDescription = null,
-                    tint = Green,
-                    modifier = Modifier.size(38.dp)
-                )
-            }
+                    .height(105.dp),
+                contentScale = ContentScale.Fit
+            )
 
             Column {
-
                 Text(
                     text = brand,
                     fontSize = 9.sp,
                     color = TextGray
                 )
 
-                Spacer(modifier = Modifier.height(3.dp))
-
                 Text(
                     text = name,
                     fontSize = 11.sp,
-                    fontWeight = FontWeight.Bold,
-                    lineHeight = 14.sp,
-                    color = TextDark
+                    fontWeight = FontWeight.SemiBold,
+                    color = TextDark,
+                    lineHeight = 13.sp,
+                    maxLines = 2
                 )
             }
         }
