@@ -29,8 +29,9 @@ private val TextDark = Color(0xFF222222)
 private val TextGray = Color(0xFF777777)
 
 @Composable
-fun HomeScreen() {
-
+fun HomeScreen(
+    onProductsClick: () -> Unit = {}
+) {
     Scaffold(
         containerColor = Cream,
         bottomBar = {
@@ -48,7 +49,12 @@ fun HomeScreen() {
                 tabs.forEach { (title, icon, selected) ->
                     NavigationBarItem(
                         selected = selected,
-                        onClick = {},
+                        onClick = {
+                            if (title == "Products") {
+                                onProductsClick()
+                            }
+                        },
+
                         icon = {
                             Icon(
                                 imageVector = icon,
