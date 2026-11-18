@@ -8,7 +8,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -22,9 +21,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.skincareapp.R
 import com.example.skincareapp.model.Product
+import com.example.skincareapp.model.IngredientInfo
+import com.example.skincareapp.model.IngredientDatabase
 
 private val Green = Color(0xFF238367)
 private val Cream = Color(0xFFFAFAF5)
+private val LightGreen = Color(0xFFDCEBDD)
+private val TextDark = Color(0xFF222222)
 
 @Composable
 fun ScanResultsScreen(
@@ -48,9 +51,8 @@ fun ScanResultsScreen(
                         contentDescription = "Back"
                     )
                 }
-
                 Text(
-                    "Product Details",
+                    "Scan Results",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold
                 )
@@ -86,70 +88,72 @@ fun ScanResultsScreen(
 
                 Card(
                     modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(20.dp),
                     colors = CardDefaults.cardColors(
                         containerColor = Color.White
-                    ),
-                    shape = RoundedCornerShape(20.dp)
+                    )
                 ) {
                     Image(
                         painter = painterResource(imageRes),
                         contentDescription = product.name,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(220.dp)
-                            .padding(20.dp),
+                            .height(200.dp)
+                            .padding(18.dp),
                         contentScale = ContentScale.Fit
                     )
                 }
 
-                Spacer(Modifier.height(20.dp))
+                Spacer(Modifier.height(18.dp))
 
                 Text(
                     product.brand.uppercase(),
-                    fontSize = 13.sp,
                     color = Green,
+                    fontSize = 13.sp,
                     fontWeight = FontWeight.SemiBold
                 )
-
-                Spacer(Modifier.height(6.dp))
 
                 Text(
                     product.name,
                     fontSize = 25.sp,
                     fontWeight = FontWeight.Bold,
-                    lineHeight = 30.sp
+                    lineHeight = 30.sp,
+                    color = TextDark
                 )
 
-                Spacer(Modifier.height(20.dp))
+                Spacer(Modifier.height(18.dp))
 
                 Card(
+                    modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(
-                        containerColor = Color(0xFFDCEBDD)
+                        containerColor = LightGreen
                     ),
                     shape = RoundedCornerShape(16.dp)
                 ) {
                     Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
+                        modifier = Modifier.padding(18.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Icon(
                             Icons.Default.Info,
                             contentDescription = null,
-                            tint = Green
+                            tint = Green,
+                            modifier = Modifier.size(28.dp)
                         )
 
-                        Spacer(Modifier.width(12.dp))
+                        Spacer(Modifier.width(14.dp))
 
                         Column {
                             Text(
-                                "Ingredient Information",
-                                fontWeight = FontWeight.Bold
+                                "Ingredient Overview",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 16.sp
                             )
+
                             Text(
-                                "Demo data for product review",
-                                fontSize = 12.sp
+                                "${product.ingredients.size} ingredients in demo data",
+                                fontSize = 13.sp,
+                                color = Color.DarkGray
                             )
                         }
                     }
@@ -158,7 +162,7 @@ fun ScanResultsScreen(
                 Spacer(Modifier.height(24.dp))
 
                 Text(
-                    "Ingredients",
+                    "Ingredient Breakdown",
                     fontSize = 21.sp,
                     fontWeight = FontWeight.Bold
                 )
@@ -167,47 +171,72 @@ fun ScanResultsScreen(
 
                 if (product.ingredients.isEmpty()) {
                     Text(
-                        "Ingredient information is not available.",
-                        color = Color.Gray
+                        "Ingredient data is not available yet.",
+                        color = Color.Gray,
+                        fontSize = 14.sp
                     )
                 } else {
-                    product.ingredients.forEach { ingredient ->
+                    product.ingredients.forEach { name ->
+                        IngredientCard(
+                            ingredient = IngredientDatabase.findByName(name)
+                        )
 
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(bottom = 10.dp),
-                            colors = CardDefaults.cardColors(
-                                containerColor = Color.White
-                            ),
-                            shape = RoundedCornerShape(14.dp)
-                        ) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(16.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Icon(
-                                    Icons.Default.CheckCircle,
-                                    contentDescription = null,
-                                    tint = Green
-                                )
-
-                                Spacer(Modifier.width(12.dp))
-
-                                Text(
-                                    ingredient,
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.Medium
-                                )
-                            }
-                        }
+                        Spacer(Modifier.height(10.dp))
                     }
                 }
 
                 Spacer(Modifier.height(20.dp))
+
+                Text(
+                    "Information is educational and does not replace professional advice.",
+                    fontSize = 12.sp,
+                    color = Color.Gray
+                )
+
+                Spacer(Modifier.height(20.dp))
             }
+        }
+    }
+}
+
+@Composable
+private fun IngredientCard(
+    ingredient: IngredientInfo
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color.White
+        )
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp)
+        ) {
+            Text(
+                ingredient.name,
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Bold,
+                color = TextDark
+            )
+
+            Spacer(Modifier.height(6.dp))
+
+            Text(
+                ingredient.function,
+                fontSize = 12.sp,
+                color = Green,
+                fontWeight = FontWeight.SemiBold
+            )
+
+            Spacer(Modifier.height(8.dp))
+
+            Text(
+                ingredient.description,
+                fontSize = 13.sp,
+                lineHeight = 19.sp,
+                color = Color.DarkGray
+            )
         }
     }
 }
