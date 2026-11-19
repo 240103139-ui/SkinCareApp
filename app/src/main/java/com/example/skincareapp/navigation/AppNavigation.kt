@@ -2,6 +2,8 @@
 package com.example.skincareapp.navigation
 
 import android.net.Uri
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.navigation.NavType
@@ -18,6 +20,9 @@ import com.example.skincareapp.view.SkinProfileScreen
 import com.example.skincareapp.view.IngredientDetailsScreen
 import com.example.skincareapp.viewmodel.ProductViewModel
 import com.example.skincareapp.view.ScannerScreen
+import com.example.skincareapp.view.ScanHistoryScreen
+import com.example.skincareapp.viewmodel.ScanHistoryViewModel
+
 
 @Composable
 fun AppNavigation() {
@@ -26,6 +31,9 @@ fun AppNavigation() {
     val productViewModel = remember { ProductViewModel() }
     val skinProfileViewModel = remember {
         SkinProfileViewModel()
+    }
+    val scanHistoryViewModel = remember {
+        ScanHistoryViewModel()
     }
 
     NavHost(
@@ -49,6 +57,9 @@ fun AppNavigation() {
                 },
                 onScanClick = {
                     navController.navigate("scanner")
+                },
+                onHistoryClick = {
+                    navController.navigate("scan_history")
                 }
             )
         }
@@ -74,6 +85,7 @@ fun AppNavigation() {
             )
         }
 
+
         composable(
             route = "scan_results/{productId}",
             arguments = listOf(
@@ -86,6 +98,8 @@ fun AppNavigation() {
             val productId = entry.arguments
                 ?.getInt("productId") ?: -1
 
+            val history by scanHistoryViewModel.history.collectAsState()
+
             ScanResultsScreen(
                 product = productViewModel.getProductById(productId),
                 onBack = {
@@ -95,9 +109,16 @@ fun AppNavigation() {
                     navController.navigate(
                         "ingredient_details/${Uri.encode(name)}"
                     )
+                },
+                onSave = { product ->
+                    scanHistoryViewModel.saveScan(product)
+                },
+                isSaved = history.any {
+                    it.productId == productId
                 }
             )
         }
+
 
         composable(
             route = "ingredient_details/{ingredientName}",
@@ -119,5 +140,22 @@ fun AppNavigation() {
                 }
             )
         }
+
+        composable("scan_history") {
+            ScanHistoryScreen(
+                historyViewModel = scanHistoryViewModel,
+                productViewModel = productViewModel,
+                onBack = {
+                    navController.popBackStack()
+                },
+                onProductClick = { productId ->
+                    navController.navigate("scan_results/$productId")
+                },
+                onScanClick = {
+                    navController.navigate("scanner")
+                }
+            )
+        }
+
     }
 }

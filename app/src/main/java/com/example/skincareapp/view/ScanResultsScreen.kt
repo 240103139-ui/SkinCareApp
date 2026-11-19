@@ -34,7 +34,9 @@ private val TextDark = Color(0xFF222222)
 fun ScanResultsScreen(
     product: Product?,
     onBack: () -> Unit,
-    onIngredientClick: (String) -> Unit = {}
+    onIngredientClick: (String) -> Unit = {},
+    onSave: (Product) -> Unit = {},
+    isSaved: Boolean = false
 ) {
     Scaffold(
         containerColor = Cream,
@@ -58,6 +60,20 @@ fun ScanResultsScreen(
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold
                 )
+                Spacer(modifier = Modifier.weight(1f))
+
+                if (product != null) {
+                    Button(
+                        onClick = { onSave(product) },
+                        enabled = !isSaved,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Green
+                        ),
+                        shape = RoundedCornerShape(10.dp)
+                    ) {
+                        Text(if (isSaved) "Saved" else "Save")
+                    }
+                }
             }
         }
     ) { padding ->

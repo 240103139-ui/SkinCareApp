@@ -34,7 +34,8 @@ private val TextGray = Color(0xFF777777)
 fun HomeScreen(
     onProductsClick: () -> Unit = {},
     onProfileClick: () -> Unit = {},
-    onScanClick: () -> Unit = {}
+    onScanClick: () -> Unit = {},
+    onHistoryClick: () -> Unit = {}
 ) {
     Scaffold(
         containerColor = Cream,
@@ -266,12 +267,13 @@ fun HomeScreen(
                     color = TextDark
                 )
 
-                Text(
-                    "See All ›",
-                    color = Green,
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.Medium
-                )
+                TextButton(onClick = onHistoryClick) {
+                    Text(
+                        "History ›",
+                        color = Green,
+                        fontSize = 13.sp
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(14.dp))
