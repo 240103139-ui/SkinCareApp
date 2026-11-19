@@ -33,7 +33,8 @@ private val TextGray = Color(0xFF777777)
 @Composable
 fun HomeScreen(
     onProductsClick: () -> Unit = {},
-    onProfileClick: () -> Unit = {}
+    onProfileClick: () -> Unit = {},
+    onScanClick: () -> Unit = {}
 ) {
     Scaffold(
         containerColor = Cream,
@@ -56,6 +57,7 @@ fun HomeScreen(
                             when (title) {
                                 "Products" -> onProductsClick()
                                 "Profile" -> onProfileClick()
+                                "Scan" -> onScanClick()
                             }
                         },
 

@@ -17,6 +17,7 @@ import com.example.skincareapp.viewmodel.SkinProfileViewModel
 import com.example.skincareapp.view.SkinProfileScreen
 import com.example.skincareapp.view.IngredientDetailsScreen
 import com.example.skincareapp.viewmodel.ProductViewModel
+import com.example.skincareapp.view.ScannerScreen
 
 @Composable
 fun AppNavigation() {
@@ -31,7 +32,13 @@ fun AppNavigation() {
         navController = navController,
         startDestination = "home"
     ) {
-
+        composable("scanner") {
+            ScannerScreen(
+                onBack = {
+                    navController.popBackStack()
+                }
+            )
+        }
         composable("home") {
             HomeScreen(
                 onProductsClick = {
@@ -39,6 +46,9 @@ fun AppNavigation() {
                 },
                 onProfileClick = {
                     navController.navigate("skin_profile")
+                },
+                onScanClick = {
+                    navController.navigate("scanner")
                 }
             )
         }
