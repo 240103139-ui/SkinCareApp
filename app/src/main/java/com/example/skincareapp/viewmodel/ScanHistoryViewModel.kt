@@ -7,6 +7,7 @@ import com.example.skincareapp.model.ScanRecord
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
+
 class ScanHistoryViewModel : ViewModel() {
 
     private val _history =
@@ -26,6 +27,13 @@ class ScanHistoryViewModel : ViewModel() {
             it.productId == productId
         }
     }
+
+    fun removeScan(productId: Int) {
+        _history.value = _history.value.filter {
+            it.productId != productId
+        }
+    }
+
 
     fun clearHistory() {
         _history.value = emptyList()

@@ -28,6 +28,7 @@ import com.example.skincareapp.viewmodel.ProductViewModel
 import com.example.skincareapp.viewmodel.ScanHistoryViewModel
 import java.text.DateFormat
 import java.util.Date
+import androidx.compose.material.icons.filled.DeleteOutline
 
 private val Green = Color(0xFF238367)
 private val Cream = Color(0xFFFAFAF5)
@@ -44,6 +45,7 @@ fun ScanHistoryScreen(
     val history by historyViewModel.history.collectAsState()
     val products by productViewModel.products.collectAsState()
     var searchQuery by remember { mutableStateOf("") }
+    var showClearDialog by remember { mutableStateOf(false) }
 
     val filteredHistory = history.filter { record ->
         val product = products.find { it.id == record.productId }
@@ -148,11 +150,30 @@ fun ScanHistoryScreen(
                 }
 
                 else -> {
-                    Text(
-                        "Recent scans · ${filteredHistory.size}",
-                        fontWeight = FontWeight.SemiBold,
-                        fontSize = 14.sp
-                    )
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            "Recent scans · ${filteredHistory.size}",
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 14.sp
+                        )
+
+                        TextButton(
+                            onClick = {
+                                showClearDialog = true
+                            }
+                        ) {
+                            Text(
+                                "Clear history",
+                                color = Color(0xFFB64B46)
+                            )
+                        }
+                    }
+
 
                     Spacer(Modifier.height(12.dp))
 
@@ -175,6 +196,9 @@ fun ScanHistoryScreen(
                                     record = record,
                                     onClick = {
                                         onProductClick(product.id)
+                                    },
+                                    onDelete = {
+                                        historyViewModel.removeScan(product.id)
                                     }
                                 )
                             }
@@ -184,6 +208,46 @@ fun ScanHistoryScreen(
             }
         }
     }
+
+    if (showClearDialog) {
+        AlertDialog(
+            onDismissRequest = {
+                showClearDialog = false
+            },
+            title = {
+                Text("Clear scan history?")
+            },
+            text = {
+                Text(
+                    "All saved scans will be removed " +
+                            "from this session."
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        historyViewModel.clearHistory()
+                        showClearDialog = false
+                    }
+                ) {
+                    Text(
+                        "Clear",
+                        color = Color(0xFFB64B46)
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        showClearDialog = false
+                    }
+                ) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+
 }
 
 @Composable
@@ -244,7 +308,8 @@ private fun HistoryEmptyState(
 private fun HistoryProductCard(
     product: Product,
     record: ScanRecord,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    onDelete: () -> Unit
 ) {
     val imageRes = when (product.id) {
         1 -> R.drawable.camomile
@@ -308,6 +373,18 @@ private fun HistoryProductCard(
                     ).format(Date(record.savedAt)),
                     color = Color.Gray,
                     fontSize = 11.sp
+                )
+            }
+            Spacer(Modifier.weight(1f))
+
+            IconButton(
+                onClick = onDelete,
+                modifier = Modifier.size(40.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.DeleteOutline,
+                    contentDescription = "Delete scan",
+                    tint = Color(0xFFB64B46)
                 )
             }
         }
