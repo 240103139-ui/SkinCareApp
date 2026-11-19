@@ -13,6 +13,8 @@ import com.example.skincareapp.model.IngredientDatabase
 import com.example.skincareapp.view.HomeScreen
 import com.example.skincareapp.view.ProductsScreen
 import com.example.skincareapp.view.ScanResultsScreen
+import com.example.skincareapp.viewmodel.SkinProfileViewModel
+import com.example.skincareapp.view.SkinProfileScreen
 import com.example.skincareapp.view.IngredientDetailsScreen
 import com.example.skincareapp.viewmodel.ProductViewModel
 
@@ -21,6 +23,9 @@ fun AppNavigation() {
 
     val navController = rememberNavController()
     val productViewModel = remember { ProductViewModel() }
+    val skinProfileViewModel = remember {
+        SkinProfileViewModel()
+    }
 
     NavHost(
         navController = navController,
@@ -31,6 +36,9 @@ fun AppNavigation() {
             HomeScreen(
                 onProductsClick = {
                     navController.navigate("products")
+                },
+                onProfileClick = {
+                    navController.navigate("skin_profile")
                 }
             )
         }
@@ -43,6 +51,15 @@ fun AppNavigation() {
                 },
                 onProductClick = { productId ->
                     navController.navigate("scan_results/$productId")
+                }
+            )
+        }
+
+        composable("skin_profile") {
+            SkinProfileScreen(
+                viewModel = skinProfileViewModel,
+                onBack = {
+                    navController.popBackStack()
                 }
             )
         }

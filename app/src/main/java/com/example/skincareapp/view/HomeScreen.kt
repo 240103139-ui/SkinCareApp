@@ -3,6 +3,8 @@ package com.example.skincareapp.view
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import com.example.skincareapp.view.SkinProfileScreen
+import com.example.skincareapp.viewmodel.SkinProfileViewModel
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -30,7 +32,8 @@ private val TextGray = Color(0xFF777777)
 
 @Composable
 fun HomeScreen(
-    onProductsClick: () -> Unit = {}
+    onProductsClick: () -> Unit = {},
+    onProfileClick: () -> Unit = {}
 ) {
     Scaffold(
         containerColor = Cream,
@@ -50,8 +53,9 @@ fun HomeScreen(
                     NavigationBarItem(
                         selected = selected,
                         onClick = {
-                            if (title == "Products") {
-                                onProductsClick()
+                            when (title) {
+                                "Products" -> onProductsClick()
+                                "Profile" -> onProfileClick()
                             }
                         },
 
