@@ -1,6 +1,7 @@
 
 package com.example.skincareapp.navigation
 
+import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.navigation.NavType
@@ -8,9 +9,11 @@ import androidx.navigation.navArgument
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.skincareapp.model.IngredientDatabase
 import com.example.skincareapp.view.HomeScreen
 import com.example.skincareapp.view.ProductsScreen
 import com.example.skincareapp.view.ScanResultsScreen
+import com.example.skincareapp.view.IngredientDetailsScreen
 import com.example.skincareapp.viewmodel.ProductViewModel
 
 @Composable
@@ -21,20 +24,18 @@ fun AppNavigation() {
 
     NavHost(
         navController = navController,
-        startDestination = Screen.Home.route
+        startDestination = "home"
     ) {
 
-        composable(Screen.Home.route) {
+        composable("home") {
             HomeScreen(
                 onProductsClick = {
-                    navController.navigate(Screen.Products.route) {
-                        launchSingleTop = true
-                    }
+                    navController.navigate("products")
                 }
             )
         }
 
-        composable(Screen.Products.route) {
+        composable("products") {
             ProductsScreen(
                 viewModel = productViewModel,
                 onBack = {
@@ -47,21 +48,45 @@ fun AppNavigation() {
         }
 
         composable(
-            route = Screen.ScanResults.route,
+            route = "scan_results/{productId}",
             arguments = listOf(
                 navArgument("productId") {
                     type = NavType.IntType
                 }
             )
-        ) { backStackEntry ->
+        ) { entry ->
 
-            val productId = backStackEntry.arguments
+            val productId = entry.arguments
                 ?.getInt("productId") ?: -1
 
-            val product = productViewModel.getProductById(productId)
-
             ScanResultsScreen(
-                product = product,
+                product = productViewModel.getProductById(productId),
+                onBack = {
+                    navController.popBackStack()
+                },
+                onIngredientClick = { name ->
+                    navController.navigate(
+                        "ingredient_details/${Uri.encode(name)}"
+                    )
+                }
+            )
+        }
+
+        composable(
+            route = "ingredient_details/{ingredientName}",
+            arguments = listOf(
+                navArgument("ingredientName") {
+                    type = NavType.StringType
+                }
+            )
+        ) { entry ->
+
+            val ingredientName = entry.arguments
+                ?.getString("ingredientName")
+                .orEmpty()
+
+            IngredientDetailsScreen(
+                ingredient = IngredientDatabase.findByName(ingredientName),
                 onBack = {
                     navController.popBackStack()
                 }

@@ -5,6 +5,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -32,7 +33,8 @@ private val TextDark = Color(0xFF222222)
 @Composable
 fun ScanResultsScreen(
     product: Product?,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onIngredientClick: (String) -> Unit = {}
 ) {
     Scaffold(
         containerColor = Cream,
@@ -178,7 +180,10 @@ fun ScanResultsScreen(
                 } else {
                     product.ingredients.forEach { name ->
                         IngredientCard(
-                            ingredient = IngredientDatabase.findByName(name)
+                            ingredient = IngredientDatabase.findByName(name),
+                            onClick = {
+                                onIngredientClick(name)
+                            }
                         )
 
                         Spacer(Modifier.height(10.dp))
@@ -201,10 +206,13 @@ fun ScanResultsScreen(
 
 @Composable
 private fun IngredientCard(
-    ingredient: IngredientInfo
+    ingredient: IngredientInfo,
+    onClick: () -> Unit
 ) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
             containerColor = Color.White
