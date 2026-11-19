@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import com.example.skincareapp.view.SkinProfileScreen
 import com.example.skincareapp.viewmodel.SkinProfileViewModel
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -35,7 +36,8 @@ fun HomeScreen(
     onProductsClick: () -> Unit = {},
     onProfileClick: () -> Unit = {},
     onScanClick: () -> Unit = {},
-    onHistoryClick: () -> Unit = {}
+    onHistoryClick: () -> Unit = {},
+    onProductClick: (Int) -> Unit = {}
 ) {
     Scaffold(
         containerColor = Cream,
@@ -104,7 +106,7 @@ fun HomeScreen(
             )
 
             Text(
-                text = "Hi, Jessica!",
+                text = "Hi, Assel!",
                 fontSize = 27.sp,
                 fontWeight = FontWeight.Bold,
                 color = TextDark
@@ -222,14 +224,18 @@ fun HomeScreen(
                     title = "Scanner",
                     icon = Icons.Default.DocumentScanner,
                     color = LightGreen,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier
+                        .weight(1f)
+                        .clickable { onScanClick() }
                 )
 
                 ExploreCard(
                     title = "Search",
                     icon = Icons.Default.Search,
                     color = Color(0xFFE7DFF2),
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier
+                        .weight(1f)
+                        .clickable { onProductsClick() }
                 )
             }
 
@@ -286,21 +292,27 @@ fun HomeScreen(
                     brand = "ARENCIA",
                     name = "Vitamin C Booster",
                     imageRes = R.drawable.arencia,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier
+                        .weight(1f)
+                        .clickable { onProductClick(2) }
                 )
 
                 ProductCard(
                     brand = "UNOVE",
                     name = "Deep Damage Repair",
                     imageRes = R.drawable.unove,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier
+                        .weight(1f)
+                        .clickable { onProductClick(3)}
                 )
 
                 ProductCard(
                     brand = "AESTURA",
                     name = "ATOBARRIER365",
                     imageRes = R.drawable.aestura,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier
+                        .weight(1f)
+                        .clickable { onProductClick(4) }
                 )
             }
 

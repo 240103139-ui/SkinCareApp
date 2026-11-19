@@ -47,22 +47,37 @@ fun AppNavigation() {
                 }
             )
         }
+
         composable("home") {
             HomeScreen(
                 onProductsClick = {
-                    navController.navigate("products")
+                    navController.navigate("products") {
+                        launchSingleTop = true
+                    }
                 },
                 onProfileClick = {
-                    navController.navigate("skin_profile")
+                    navController.navigate("skin_profile") {
+                        launchSingleTop = true
+                    }
                 },
                 onScanClick = {
-                    navController.navigate("scanner")
+                    navController.navigate("scanner") {
+                        launchSingleTop = true
+                    }
                 },
                 onHistoryClick = {
-                    navController.navigate("scan_history")
+                    navController.navigate("scan_history") {
+                        launchSingleTop = true
+                    }
+                },
+                onProductClick = { productId ->
+                    navController.navigate(
+                        "scan_results/$productId"
+                    )
                 }
             )
         }
+
 
         composable("products") {
             ProductsScreen(
