@@ -22,6 +22,9 @@ import com.example.skincareapp.viewmodel.ProductViewModel
 import com.example.skincareapp.view.ScannerScreen
 import com.example.skincareapp.view.ScanHistoryScreen
 import com.example.skincareapp.viewmodel.ScanHistoryViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.skincareapp.view.BeautyProductsScreen
+import com.example.skincareapp.viewmodel.BeautyProductsViewModel
 
 
 @Composable
@@ -47,7 +50,16 @@ fun AppNavigation() {
                 }
             )
         }
+        composable("api_products") {
+            val beautyViewModel: BeautyProductsViewModel = viewModel()
 
+            BeautyProductsScreen(
+                viewModel = beautyViewModel,
+                onBack = {
+                    navController.popBackStack()
+                }
+            )
+        }
         composable("home") {
             HomeScreen(
                 onProductsClick = {
@@ -74,7 +86,13 @@ fun AppNavigation() {
                     navController.navigate(
                         "scan_results/$productId"
                     )
+                },
+                onApiProductsClick = {
+                    navController.navigate("api_products") {
+                        launchSingleTop = true
+                    }
                 }
+
             )
         }
 

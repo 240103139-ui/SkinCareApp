@@ -37,7 +37,9 @@ fun HomeScreen(
     onProfileClick: () -> Unit = {},
     onScanClick: () -> Unit = {},
     onHistoryClick: () -> Unit = {},
-    onProductClick: (Int) -> Unit = {}
+    onProductClick: (Int) -> Unit = {},
+    onApiProductsClick: () -> Unit = {}
+
 ) {
     Scaffold(
         containerColor = Cream,
@@ -221,12 +223,14 @@ fun HomeScreen(
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 ExploreCard(
-                    title = "Scanner",
-                    icon = Icons.Default.DocumentScanner,
-                    color = LightGreen,
+                    title = "Skincare Finder",
+                    icon = Icons.Default.Spa,
+                    color = Color(0xFFF5DFE1),
                     modifier = Modifier
                         .weight(1f)
-                        .clickable { onScanClick() }
+                        .clickable {
+                            onApiProductsClick()
+                        }
                 )
 
                 ExploreCard(
