@@ -25,6 +25,9 @@ import com.example.skincareapp.viewmodel.ScanHistoryViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.skincareapp.view.BeautyProductsScreen
 import com.example.skincareapp.viewmodel.BeautyProductsViewModel
+import androidx.compose.ui.platform.LocalContext
+import com.example.skincareapp.data.local.SavedScanDatabase
+import com.example.skincareapp.data.repository.SavedScanRepository
 
 
 @Composable
@@ -35,8 +38,18 @@ fun AppNavigation() {
     val skinProfileViewModel = remember {
         SkinProfileViewModel()
     }
-    val scanHistoryViewModel = remember {
-        ScanHistoryViewModel()
+    val context = LocalContext.current.applicationContext
+
+    val scanRepository = remember(context) {
+        val database = SavedScanDatabase.getDatabase(context)
+
+        SavedScanRepository(
+            dao = database.savedScanDao()
+        )
+    }
+
+    val scanHistoryViewModel = remember(scanRepository) {
+        ScanHistoryViewModel(scanRepository)
     }
 
     NavHost(
