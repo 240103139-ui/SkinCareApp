@@ -21,6 +21,10 @@ import androidx.compose.ui.unit.dp
 import com.example.skincareapp.data.remote.BeautyProductDto
 import com.example.skincareapp.viewmodel.BeautyProductsUiState
 import com.example.skincareapp.viewmodel.BeautyProductsViewModel
+import coil3.compose.AsyncImage
+import androidx.compose.material.icons.filled.Image
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.style.TextOverflow
 
 private val Green = Color(0xFF238367)
 private val Cream = Color(0xFFFAFAF5)
@@ -183,42 +187,86 @@ private fun BeautyProductCard(
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
+        shape = RoundedCornerShape(18.dp),
         colors = CardDefaults.cardColors(
             containerColor = Color.White
         )
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = product.brands
-                    ?.ifBlank { "Unknown brand" }
-                    ?: "Unknown brand",
-                color = Green,
-                style = MaterialTheme.typography.labelMedium
-            )
 
-            Spacer(modifier = Modifier.height(6.dp))
+            Box(
+                modifier = Modifier
+                    .size(95.dp)
+                    .background(
+                        Color(0xFFF1F5F1),
+                        RoundedCornerShape(12.dp)
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Image,
+                    contentDescription = null,
+                    modifier = Modifier.size(32.dp),
+                    tint = Color.LightGray
+                )
 
-            Text(
-                text = product.productName
-                    ?.ifBlank { "Unnamed product" }
-                    ?: "Unnamed product",
-                fontWeight = FontWeight.Bold,
-                style = MaterialTheme.typography.titleMedium
-            )
+                val imageUrl = product.imageUrl
+                    ?.takeIf { it.startsWith("https://") }
 
-            Spacer(modifier = Modifier.height(8.dp))
+                if (imageUrl != null) {
+                    AsyncImage(
+                        model = imageUrl,
+                        contentDescription = product.productName,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(4.dp),
+                        contentScale = ContentScale.Fit
+                    )
+                }
+            }
 
-            Text(
-                text = product.ingredientsText
-                    ?.takeIf { it.isNotBlank() }
-                    ?: "Ingredients not available",
-                style = MaterialTheme.typography.bodySmall,
-                maxLines = 3,
-                color = Color.DarkGray
-            )
+            Spacer(modifier = Modifier.width(14.dp))
+
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(
+                    text = product.brands
+                        ?.ifBlank { "Unknown brand" }
+                        ?: "Unknown brand",
+                    color = Color(0xFF238367),
+                    style = MaterialTheme.typography.labelMedium
+                )
+
+                Spacer(modifier = Modifier.height(5.dp))
+
+                Text(
+                    text = product.productName
+                        ?.ifBlank { "Unnamed product" }
+                        ?: "Unnamed product",
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.titleMedium,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    text = product.ingredientsText
+                        ?.takeIf { it.isNotBlank() }
+                        ?: "Ingredients not available",
+                    style = MaterialTheme.typography.bodySmall,
+                    maxLines = 3,
+                    overflow = TextOverflow.Ellipsis,
+                    color = Color.Gray
+                )
+            }
         }
     }
 }
