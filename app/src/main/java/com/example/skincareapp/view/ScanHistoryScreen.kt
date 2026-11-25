@@ -1,4 +1,3 @@
-
 package com.example.skincareapp.view
 
 import androidx.compose.foundation.Image
@@ -9,6 +8,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.DeleteOutline
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
@@ -28,11 +29,11 @@ import com.example.skincareapp.viewmodel.ProductViewModel
 import com.example.skincareapp.viewmodel.ScanHistoryViewModel
 import java.text.DateFormat
 import java.util.Date
-import androidx.compose.material.icons.filled.DeleteOutline
 
 private val Green = Color(0xFF238367)
 private val Cream = Color(0xFFFAFAF5)
 private val LightGreen = Color(0xFFDCEBDD)
+private val DeleteRed = Color(0xFFB64B46)
 
 @Composable
 fun ScanHistoryScreen(
@@ -46,12 +47,14 @@ fun ScanHistoryScreen(
     val products by productViewModel.products.collectAsState()
     var searchQuery by remember { mutableStateOf("") }
     var showClearDialog by remember { mutableStateOf(false) }
+    var editingProductId by remember { mutableStateOf<Int?>(null) }
+    var noteText by remember { mutableStateOf("") }
 
     val filteredHistory = history.filter { record ->
         val product = products.find { it.id == record.productId }
         product != null && (
-                product.name.contains(searchQuery, true) ||
-                        product.brand.contains(searchQuery, true)
+                product.name.contains(searchQuery, ignoreCase = true) ||
+                        product.brand.contains(searchQuery, ignoreCase = true)
                 )
     }
 
@@ -74,7 +77,6 @@ fun ScanHistoryScreen(
                             tint = Green
                         )
                     }
-
                     Text(
                         "Scan history",
                         fontSize = 20.sp,
@@ -90,16 +92,13 @@ fun ScanHistoryScreen(
                     .fillMaxWidth()
                     .padding(16.dp)
                     .height(54.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Green
-                ),
+                colors = ButtonDefaults.buttonColors(containerColor = Green),
                 shape = RoundedCornerShape(12.dp)
             ) {
                 Text("Scan a product")
             }
         }
     ) { padding ->
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -114,10 +113,7 @@ fun ScanHistoryScreen(
                 modifier = Modifier.fillMaxWidth(),
                 placeholder = { Text("Search scans") },
                 leadingIcon = {
-                    Icon(
-                        Icons.Default.Search,
-                        contentDescription = null
-                    )
+                    Icon(Icons.Default.Search, contentDescription = null)
                 },
                 singleLine = true,
                 shape = RoundedCornerShape(15.dp),
@@ -132,9 +128,7 @@ fun ScanHistoryScreen(
 
             when {
                 history.isEmpty() -> {
-                    HistoryEmptyState(
-                        onScanClick = onScanClick
-                    )
+                    HistoryEmptyState(onScanClick)
                 }
 
                 filteredHistory.isEmpty() -> {
@@ -142,15 +136,11 @@ fun ScanHistoryScreen(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(
-                            "No matching scans found",
-                            color = Color.Gray
-                        )
+                        Text("No matching scans found", color = Color.Gray)
                     }
                 }
 
                 else -> {
-
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -161,45 +151,31 @@ fun ScanHistoryScreen(
                             fontWeight = FontWeight.SemiBold,
                             fontSize = 14.sp
                         )
-
-                        TextButton(
-                            onClick = {
-                                showClearDialog = true
-                            }
-                        ) {
-                            Text(
-                                "Clear history",
-                                color = Color(0xFFB64B46)
-                            )
+                        TextButton(onClick = { showClearDialog = true }) {
+                            Text("Clear history", color = DeleteRed)
                         }
                     }
-
-
                     Spacer(Modifier.height(12.dp))
 
                     LazyColumn(
-                        verticalArrangement =
-                            Arrangement.spacedBy(12.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
                         contentPadding = PaddingValues(bottom = 18.dp)
                     ) {
                         items(
                             items = filteredHistory,
                             key = { it.productId }
                         ) { record ->
-                            val product = products.find {
-                                it.id == record.productId
-                            }
-
+                            val product = products.find { it.id == record.productId }
                             if (product != null) {
                                 HistoryProductCard(
                                     product = product,
                                     record = record,
-                                    onClick = {
-                                        onProductClick(product.id)
+                                    onClick = { onProductClick(product.id) },
+                                    onEdit = {
+                                        noteText = record.note
+                                        editingProductId = record.productId
                                     },
-                                    onDelete = {
-                                        historyViewModel.removeScan(product.id)
-                                    }
+                                    onDelete = { historyViewModel.removeScan(product.id) }
                                 )
                             }
                         }
@@ -211,57 +187,64 @@ fun ScanHistoryScreen(
 
     if (showClearDialog) {
         AlertDialog(
-            onDismissRequest = {
-                showClearDialog = false
-            },
-            title = {
-                Text("Clear scan history?")
-            },
-            text = {
-                Text(
-                    "All saved scans will be removed " +
-                            "from this session."
-                )
-            },
+            onDismissRequest = { showClearDialog = false },
+            title = { Text("Clear scan history?") },
+            text = { Text("All saved scans will be removed from this device.") },
             confirmButton = {
-                TextButton(
-                    onClick = {
-                        historyViewModel.clearHistory()
-                        showClearDialog = false
-                    }
-                ) {
-                    Text(
-                        "Clear",
-                        color = Color(0xFFB64B46)
-                    )
+                TextButton(onClick = {
+                    historyViewModel.clearHistory()
+                    showClearDialog = false
+                }) {
+                    Text("Clear", color = DeleteRed)
                 }
             },
             dismissButton = {
-                TextButton(
-                    onClick = {
-                        showClearDialog = false
-                    }
-                ) {
+                TextButton(onClick = { showClearDialog = false }) {
                     Text("Cancel")
                 }
             }
         )
     }
 
+    editingProductId?.let { productId ->
+        AlertDialog(
+            onDismissRequest = { editingProductId = null },
+            title = { Text("Edit product note") },
+            text = {
+                OutlinedTextField(
+                    value = noteText,
+                    onValueChange = { noteText = it },
+                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text("Your note") },
+                    placeholder = { Text("Write something about this product") },
+                    maxLines = 4
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    historyViewModel.updateNote(productId, noteText)
+                    editingProductId = null
+                }) {
+                    Text("Save", color = Green)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { editingProductId = null }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
 }
 
 @Composable
-private fun HistoryEmptyState(
-    onScanClick: () -> Unit
-) {
+private fun HistoryEmptyState(onScanClick: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = 50.dp),
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = LightGreen
-        )
+        colors = CardDefaults.cardColors(containerColor = LightGreen)
     ) {
         Column(
             modifier = Modifier
@@ -275,30 +258,17 @@ private fun HistoryEmptyState(
                 modifier = Modifier.size(60.dp),
                 tint = Green
             )
-
             Spacer(Modifier.height(20.dp))
-
-            Text(
-                "No scans yet",
-                fontSize = 22.sp,
-                fontWeight = FontWeight.Bold
-            )
-
+            Text("No scans yet", fontSize = 22.sp, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(12.dp))
-
             Text(
                 "Save a product review to keep it here.",
                 color = Color.DarkGray,
                 fontSize = 14.sp
             )
-
             Spacer(Modifier.height(20.dp))
-
             TextButton(onClick = onScanClick) {
-                Text(
-                    "Open scanner",
-                    color = Green
-                )
+                Text("Open scanner", color = Green)
             }
         }
     }
@@ -309,6 +279,7 @@ private fun HistoryProductCard(
     product: Product,
     record: ScanRecord,
     onClick: () -> Unit,
+    onEdit: () -> Unit,
     onDelete: () -> Unit
 ) {
     val imageRes = when (product.id) {
@@ -320,52 +291,38 @@ private fun HistoryProductCard(
     }
 
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick),
+        modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(18.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color.White
-        )
+        colors = CardDefaults.cardColors(containerColor = Color.White)
     ) {
         Row(
-            modifier = Modifier.padding(12.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Image(
                 painter = painterResource(imageRes),
                 contentDescription = product.name,
-                modifier = Modifier.size(85.dp),
+                modifier = Modifier
+                    .size(78.dp)
+                    .clickable(onClick = onClick),
                 contentScale = ContentScale.Fit
             )
 
-            Spacer(Modifier.width(14.dp))
+            Spacer(Modifier.width(12.dp))
 
-            Column {
-                Text(
-                    product.brand.uppercase(),
-                    fontSize = 11.sp,
-                    color = Color.Gray
-                )
-
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .clickable(onClick = onClick)
+            ) {
+                Text(product.brand.uppercase(), fontSize = 11.sp, color = Color.Gray)
                 Spacer(Modifier.height(4.dp))
-
-                Text(
-                    product.name,
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.Bold
-                )
-
+                Text(product.name, fontSize = 15.sp, fontWeight = FontWeight.Bold)
                 Spacer(Modifier.height(8.dp))
-
-                Text(
-                    "${product.ingredients.size} ingredients",
-                    color = Green,
-                    fontSize = 12.sp
-                )
-
+                Text("${product.ingredients.size} ingredients", color = Green, fontSize = 12.sp)
                 Spacer(Modifier.height(5.dp))
-
                 Text(
                     DateFormat.getDateTimeInstance(
                         DateFormat.SHORT,
@@ -374,18 +331,27 @@ private fun HistoryProductCard(
                     color = Color.Gray,
                     fontSize = 11.sp
                 )
+                if (record.note.isNotBlank()) {
+                    Spacer(Modifier.height(8.dp))
+                    Text(text = record.note, color = Green, fontSize = 12.sp, maxLines = 3)
+                }
             }
-            Spacer(Modifier.weight(1f))
 
-            IconButton(
-                onClick = onDelete,
-                modifier = Modifier.size(40.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.DeleteOutline,
-                    contentDescription = "Delete scan",
-                    tint = Color(0xFFB64B46)
-                )
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                IconButton(onClick = onEdit) {
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = "Edit note",
+                        tint = Green
+                    )
+                }
+                IconButton(onClick = onDelete) {
+                    Icon(
+                        imageVector = Icons.Default.DeleteOutline,
+                        contentDescription = "Delete scan",
+                        tint = DeleteRed
+                    )
+                }
             }
         }
     }

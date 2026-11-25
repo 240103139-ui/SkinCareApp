@@ -21,7 +21,8 @@ class ScanHistoryViewModel(
                 scans.map { scan ->
                     ScanRecord(
                         productId = scan.productId,
-                        savedAt = scan.savedAt
+                        savedAt = scan.savedAt,
+                        note = scan.note
                     )
                 }
             }
@@ -38,9 +39,7 @@ class ScanHistoryViewModel(
     }
 
     fun isSaved(productId: Int): Boolean {
-        return history.value.any {
-            it.productId == productId
-        }
+        return history.value.any { it.productId == productId }
     }
 
     fun removeScan(productId: Int) {
@@ -52,6 +51,12 @@ class ScanHistoryViewModel(
     fun clearHistory() {
         viewModelScope.launch {
             repository.clearHistory()
+        }
+    }
+
+    fun updateNote(productId: Int, note: String) {
+        viewModelScope.launch {
+            repository.updateNote(productId, note.trim())
         }
     }
 }
