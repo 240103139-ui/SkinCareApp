@@ -29,6 +29,7 @@ import com.example.skincareapp.viewmodel.ProductViewModel
 import com.example.skincareapp.viewmodel.ScanHistoryViewModel
 import java.text.DateFormat
 import java.util.Date
+import com.example.skincareapp.viewmodel.HistoryPreferencesViewModel
 
 private val Green = Color(0xFF238367)
 private val Cream = Color(0xFFFAFAF5)
@@ -38,25 +39,38 @@ private val DeleteRed = Color(0xFFB64B46)
 @Composable
 fun ScanHistoryScreen(
     historyViewModel: ScanHistoryViewModel,
+    preferencesViewModel: HistoryPreferencesViewModel,
     productViewModel: ProductViewModel,
     onBack: () -> Unit,
     onProductClick: (Int) -> Unit,
     onScanClick: () -> Unit
 ) {
     val history by historyViewModel.history.collectAsState()
+    val newestFirst by preferencesViewModel.newestFirst.collectAsState()
     val products by productViewModel.products.collectAsState()
     var searchQuery by remember { mutableStateOf("") }
     var showClearDialog by remember { mutableStateOf(false) }
     var editingProductId by remember { mutableStateOf<Int?>(null) }
     var noteText by remember { mutableStateOf("") }
 
-    val filteredHistory = history.filter { record ->
-        val product = products.find { it.id == record.productId }
-        product != null && (
-                product.name.contains(searchQuery, ignoreCase = true) ||
-                        product.brand.contains(searchQuery, ignoreCase = true)
-                )
-    }
+    val filteredHistory = history
+        .filter { record ->
+            val product = products.find {
+                it.id == record.productId
+            }
+
+            product != null && (
+                    product.name.contains(searchQuery, ignoreCase = true) ||
+                            product.brand.contains(searchQuery, ignoreCase = true)
+                    )
+        }
+        .let { scans ->
+            if (newestFirst) {
+                scans.sortedByDescending { it.savedAt }
+            } else {
+                scans.sortedBy { it.savedAt }
+            }
+        }
 
     Scaffold(
         containerColor = Cream,
@@ -125,6 +139,41 @@ fun ScanHistoryScreen(
             )
 
             Spacer(Modifier.height(22.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column {
+                    Text(
+                        text = "History order",
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 15.sp
+                    )
+
+                    Text(
+                        text = if (newestFirst) {
+                            "Newest first"
+                        } else {
+                            "Oldest first"
+                        },
+                        fontSize = 12.sp,
+                        color = Color.Gray
+                    )
+                }
+
+                Switch(
+                    checked = newestFirst,
+                    onCheckedChange = { value ->
+                        preferencesViewModel.setNewestFirst(value)
+                    },
+                    colors = SwitchDefaults.colors(
+                        checkedTrackColor = Green
+                    )
+                )
+            }
+
+            Spacer(Modifier.height(16.dp))
 
             when {
                 history.isEmpty() -> {

@@ -28,6 +28,8 @@ import com.example.skincareapp.viewmodel.BeautyProductsViewModel
 import androidx.compose.ui.platform.LocalContext
 import com.example.skincareapp.data.local.SavedScanDatabase
 import com.example.skincareapp.data.repository.SavedScanRepository
+import com.example.skincareapp.data.preferences.HistoryPreferencesRepository
+import com.example.skincareapp.viewmodel.HistoryPreferencesViewModel
 
 
 @Composable
@@ -50,6 +52,11 @@ fun AppNavigation() {
 
     val scanHistoryViewModel = remember(scanRepository) {
         ScanHistoryViewModel(scanRepository)
+    }
+    val historyPreferencesViewModel = remember(context) {
+        HistoryPreferencesViewModel(
+            HistoryPreferencesRepository(context)
+        )
     }
 
     NavHost(
@@ -191,6 +198,7 @@ fun AppNavigation() {
             ScanHistoryScreen(
                 historyViewModel = scanHistoryViewModel,
                 productViewModel = productViewModel,
+                preferencesViewModel = historyPreferencesViewModel,
                 onBack = {
                     navController.popBackStack()
                 },
